@@ -1,9 +1,9 @@
 
 MAIN = slides.md
 CSS = css/dark-chique.css
-SYNTAX = solarized-light
+SYNTAX = atom-one-dark-reasonable
 TEMPLATE = html/base.html
-SCRIPTS = js/menu.js,js/tableofcontents.js
+SCRIPTS = plugins/highlight.min.js
 STATIC_DIR = _build
 PDF_PATH = slides.pdf
 ASSETS = css,figures

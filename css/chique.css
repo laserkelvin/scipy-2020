@@ -55,3 +55,7 @@ h1::after {
 .inverted {
     filter: invert(100%);
 }
+
+.reveal ol {
+    font-size: 1.3rem
+}

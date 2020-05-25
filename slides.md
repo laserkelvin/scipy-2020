@@ -83,12 +83,18 @@ Astrophysical objects imaged with exquisite detail!
 - Molecules reveal physical and chemical properties of space.
     - Gas temperature, density, and velocity
 - Microscopic understanding of macroscopic processes;
-    - Stellar evolution, planet formation, atmospheres
-- Extremely complicated molecular spectra
+    - Stellar evolution, planet formation, atmospheres, origins of life
+- Insight derived from _known_ molecular identity: assign molecules to observed features
+    - Match frequencies with literature data
 
 </div>
 
 <div id="right">
+
+<figure>
+    <img src="figures/sgrb2n_spectrum.svg">
+    <figcaption> <a href="https://ui.adsabs.harvard.edu/abs/2013yCat..35590047B/abstract" <em style="font-size: tiny"> Sgr B2(N) observations with IRAM 30m; Belloche+ 2013</em> </a></figcaption>
+</figure>
 
 </div>
 
@@ -103,6 +109,11 @@ Astrophysical objects imaged with exquisite detail!
 - Difficult to automate, reproduce, and catalog
 - Analysis rate incommensurate with data acqusition
 
+<p class="highlight">
+    Need to improve automation
+</p>
+
+
 </div>
 
 <div id="right">
@@ -111,43 +122,93 @@ Astrophysical objects imaged with exquisite detail!
 
 </div>
 
-----
+---
 
-# Assigning multicomponent spectra
-
-## Constraints
+# Enter PySpecTools
 
 <div id="left">
 
-Number of components are unknown.
-
-No more sample—you had your shot at the experiment. 
-
-This means:
-
-- No double resonance linkages
-- No composition tests
-- No discharge or magnet tests
+<img src="https://raw.githubusercontent.com/laserkelvin/PySpecTools/master/docs/source/_images/pst_logo_landscape.png">
 
 </div>
 
 <div id="right">
 
+Open-source, Pythonic workflow for assigning broadband spectra
+
 <div class="fragment">
 
-<p> How do we make the most out of this situation? </p>
+1. Familiar abstraction for spectrocopists, chemists, and astronomers
 
 </div>
 
 <div class="fragment">
 
-<p> ...How do we do it quickly? </p>
+2. Encourage reproducible and collaborative spectroscopic analysis
+
+</div>
+
+<div class="fragment">
+
+3. Improve information extraction with deep learning models
 
 </div>
 
 </div>
 
 ----
+
+# Typical Workflow
+
+1. Acquire broadband spectra; laboratory and astronomical observations
+2. Preprocessing; baseline detection and signal filtering
+3. Peak detection
+4. Molecule assignments
+5. Additional analysis
+6. Write-up/Publication
+
+----
+
+# Core Components
+
+<div id="left">
+
+Implementation uses three core abstractions:
+
+1. `AssignmentSession`
+    - Metadata, frequency/intensity/automation control
+2. `Transition`
+    - Representation of spectral features
+3. `LineList`
+    - Collections of `Transition` objects
+
+</div>
+
+<pre><code class="language-python" style="max-width: 40%">from pyspectools.spectra import assignment
+
+# Load in spectrum and set metadata
+session = assignment.AssignmentSession(...)
+
+# Perform preprocessing and peak detection
+session.find_peaks(...)
+
+# Load in an external list of frequencies
+molecule = assignment.LineList.from_catalog(...)
+
+# Make assignments
+session.process_linelist(molecule)
+
+# Generate report
+session.finalize_assignments()
+</code></pre>
+
+----
+
+# `AssignmentSession`
+
+
+
+---
 
 # Separation of variables
 

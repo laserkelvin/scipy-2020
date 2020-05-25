@@ -23,14 +23,10 @@ html {
     background-color: #000;
 }
 
-.reveal ul {
+ul {
     color: #000;
-    background: rgba(237, 218, 204, 0.8);
+    background: rgba(237, 218, 204, 0.4);
     max-width: 80%;
-}
-
-.reveal ul > li {
-    background: rgba(255, 255, 255, 0.);
 }
 
 a {
