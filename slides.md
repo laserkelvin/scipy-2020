@@ -36,6 +36,7 @@ revealOptions:
 
 <div class="footer">
     <img src="figures/CfA_Logo_Horizontal_Reverse.svg">
+    <img src="https://static.wixstatic.com/media/2826fb_3c73b71e63a447cd99c3b43146645e53~mv2.png/v1/fill/w_830,h_217,al_c,q_85,usm_0.66_1.00_0.01/SciPy-2020-white-logo-virtual-w-tagline-.webp">
 </div>
 
 ---
@@ -62,7 +63,7 @@ revealOptions:
 
 <div class="column">
     <p>Circumstellar Shells</p>
-    <img src="https://www.aanda.org/articles/aa/full_html/2018/02/aa31619-17/aa31619-17-fig3.jpg">
+    <img src="figures/co-sma-images.jpg">
     <figcaption>DOI: <a href="https://www.aanda.org/articles/aa/abs/2018/02/aa31619-17/aa31619-17.html">10.1051/0004-6361/201731619 <a> </figcaption>
 </div>
 
@@ -109,9 +110,13 @@ Astrophysical objects imaged with exquisite detail!
 - Difficult to automate, reproduce, and catalog
 - Analysis rate incommensurate with data acqusition
 
+<div class="fragment">
+
 <p class="highlight">
-    Need to improve automation
+    Need to improve automation!
 </p>
+
+</div>
 
 
 </div>
@@ -206,60 +211,81 @@ session.finalize_assignments()
 
 # `AssignmentSession`
 
+Object interface for users to load and interact with spectral data
 
+Stores spectra as <a href="https://pandas.pydata.org/">`pandas.DataFrame`</a>: handles parsing, manipulation, and serialization
 
----
+```python
+AssignmentSession.from_csv(...).data
+```
 
-# Separation of variables
+Digital signal processing interface with <a href="https://docs.scipy.org/doc/scipy/reference/signal.html">`scipy.signal`</a> window functions:
 
-There are two distinct steps to assigning spectra:
+<pre><code class="language-python">session.apply_filter("hanning")</code></pre>
 
-1. Finding the most likely sequences of lines;
+Baseline and peak detection through custom routines and <a href="https://peakutils.readthedocs.io/en/latest/">`peakutils`</a>:
 
-2. How differentiable are the sequences from random frequencies?
+<pre><code class="language-python"># Find peaks 5 sigma above baseline; use asymmetric least-squares
+session.find_peaks(sigma=5., als=True)
+</code></pre>
 
-<br>
+Interactive viewing within notebook environments with <a href="https://plotly.com/">Plotly</a>:
 
-<strong> Probabilistic models to the rescue! </strong>
+<pre><code class="language-python">session.plot_spectrum()
+</code></pre>
 
----
+----
 
-# The Data
+# Products with `PySpecTools`
 
-1.6 million asymmetric top spectra with quartic distortion
-
-Parameters uniformly sampled from 1000‒40000 MHz ($A,B,C$).
-
-Additional 600,000 spectra with only $a,b,c$-type fundamental transitions.
-
-
----
-
-# An Approximate Hamiltonian
+Used extensively in laboratory analogues of interstellar chemistry:
 
 <div id="left">
 
-Use a recurrent encoder-decoder model to evaluate sequences without evaluating a Hamiltonian
+<figure>
 
-For a set of $n$ frequencies $\nu$, we want to evaluate:
+<img src="figures/benzene_toc.png">
 
-$$ \nu_n \vert \nu_{n - 1}, \nu_{n - 2}, \ldots, \nu_{0} $$
-
-In other words, what is the next frequency if I have $n$ frequencies?
-
-Real molecular sequences should follow some parametrized model, while noise should not!
+</figure>
 
 </div>
 
 <div id="right">
 
-<img src="figures/recurrent-encoder-decoder.png" style="width: 450px">
+<a href="https://pubs.acs.org/doi/10.1021/acs.jpclett.9b00586">Study of Benzene Fragmentation, Isomerization, and Growth</a> 
+
+Lee & McCarthy, <em> J. Phys. Chem. Lett.</em> 2019
+
+<a>Exhaustive Product Analysis of Three Benzene Discharges</a>
+
+McCarthy _et al._, _J. Phys. Chem. A._ 2020
+
+__Over two hundred new molecules discovered in the last year!__
+
+<a href="https://zenodo.org/record/3739468" class="highlight"> Version tracking with Zenodo with citable DOI </a>
+
+</div>
+
+---
+
+# Deep Learning in Spectroscopy
+
+1. Which features belong to a common carrier?
+2. What is the molecular identity of the signal?
+
+<div class="fragment">
+
+<p class="highlight" style="max-width: 60%">Probabilistic deep learning models can help with inference</p>
 
 </div>
 
 ----
 
-# Encoder
+# Spectroscopic Models
+
+Spectral features correspond to transitions between quantum mechanical states represented by a Hamiltonian
+
+
 
 <div id="left">
 
@@ -281,77 +307,26 @@ $$ \mathrm{softmax(x)} = \frac{\exp(x)}{\sum \exp(x)} $$
 
 </div>
 
-----
-
-# A good embedding
-
-<div id="left">
-
-Representation of spectra should be readily differentiable
-
-UMAP visualization compares 2D projections of raw spectra and encodings
-
-Raw spectra are 60,000 sets of fundamental transitions
-
-Embeddings are representations of 100,000 asymmetric top spectra
-
-Classification accuracy >90% for all three types for 1.6 M spectra
-
-</div>
-
-<div id="left">
-
-<img src="figures/embedding-viz.png" style="width: 850px">
-
-</div>
-
-----
-
-# A good decoder
-
-<div id="left">
-
-Decoder model uses embedding as initial state, and predicts a frequency given a frequency.
-
-Analogy is predicting transitions, given a Hamiltonian model and parameters.
-
-Mean squared error for 1.6 M spectra is ~0.03%; few MHz at ~13 GHz.
-
-Reproduction accuracy is not essential—that's what the discriminator is for!
-
-</div>
-
-<div id="right">
-
-<img src="figures/recurrent-encoder-decoder.png" style="width: 450px">
-
-</div>
-
-----
-
-# Discriminator
-
-<div id="left">
-
-Discriminator estimates likelihood of sequence to be noise or "real" molecule
-
-Haven't measured actual accuracy yet, but training/validation error is promising
-
-</div>
-
-<div id="right">
-
-<img src="figures/recurrent-encoder-decoder.png" style="width: 450px">
-
-</div>
-
 ---
 
-# Finding Sequences
+# Ackowledgements
 
-Working with Kyle on a model similar to computer vision/object detection to find sequences.
+<div class="l-multiple">
+    <div class="img-frame">
+        <img src="figures/nasa.png" class="end-icons">
+        <span>80NSSC18K0396</span>
+    </div>
+    <div class="img-frame">
+        <img src="figures/nsf.png" class="end-icons">
+        <span>AST-1908576</span>
+    </div>
+</div>
 
-Also investigating deep reinforcement learning to train neural network to find most likely sequences.
+<hr style="margin: 30px">
+
+<img src="figures/CfA_Logo_Horizontal_Reverse.svg">
+
+<img src="https://static.wixstatic.com/media/2826fb_3c73b71e63a447cd99c3b43146645e53~mv2.png/v1/fill/w_830,h_217,al_c,q_85,usm_0.66_1.00_0.01/SciPy-2020-white-logo-virtual-w-tagline-.webp">
 
 ---
 
