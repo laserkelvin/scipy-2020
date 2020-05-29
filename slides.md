@@ -376,7 +376,7 @@ __Over two hundred new molecules discovered in the last year!__
 
 <div class="fragment">
 
-<p class="pop" style="max-width: 60%">Probabilistic deep learning models can help supplement human analysis</p>
+<p class="pop" style="max-width: 60%">Probabilistic deep learning models can help accelerate spectroscopic discovery</p>
 
 </div>
 
