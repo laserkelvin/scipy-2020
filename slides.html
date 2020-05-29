@@ -35,6 +35,7 @@
 - Observations at radio wavelengths ($\lambda$~submm‒metre)
 - Transparent to absorption by interstellar dust
 - Powerful inteferometry; high bandwidth, spatial, and spectral resolution
+- Wide-range of phenomena: hydrogen spin-flip, charged-particles, molecule rotation
 
 <footer>
     <p>Credit: ESO/ALMA/NRAO</p>
@@ -93,7 +94,7 @@ Astrophysical objects imaged with exquisite detail!
 
 <div class="fragment">
 
-<p class="highlight">
+<p class="pop">
     Need to improve automation!
 </p>
 
@@ -134,7 +135,7 @@ Open-source, Pythonic workflow for assigning broadband spectra
 
 <div class="fragment">
 
-3. Improve information extraction with deep learning models
+3. Improve information extraction and decision making with deep learning models
 
 </div>
 
@@ -142,12 +143,9 @@ Open-source, Pythonic workflow for assigning broadband spectra
 </script></section><section data-markdown><script type="text/template">
 # Typical Workflow
 
-1. Acquire broadband spectra; laboratory and astronomical observations
-2. Preprocessing; baseline detection and signal filtering
-3. Peak detection
-4. Molecule assignments
-5. Additional analysis
-6. Write-up/Publication
+<img src="figures/workflow.svg" style="width: 100%" class="inverted">
+
+Every step should be reproducible and tracable!
 </script></section><section data-markdown><script type="text/template">
 # Core Components
 
@@ -192,7 +190,7 @@ Stores spectra as <a href="https://pandas.pydata.org/">`pandas.DataFrame`</a>: h
 AssignmentSession.from_csv(...).data
 ```
 
-Digital signal processing interface with <a href="https://docs.scipy.org/doc/scipy/reference/signal.html">`scipy.signal`</a> window functions:
+Digital signal processing interface with <a href="https://docs.scipy.org/doc/scipy/reference/signal.html">`scipy.signal`</a> and custom window functions:
 
 <pre><code class="language-python">session.apply_filter("hanning")</code></pre>
 
@@ -206,7 +204,100 @@ Interactive viewing within notebook environments with <a href="https://plotly.co
 
 <pre><code class="language-python">session.plot_spectrum()
 </code></pre>
+
+Serialize session with <a href="https://joblib.readthedocs.io/en/latest/persistence.html">`joblib` pickle</a>:
+
+<pre><code class="language-python">session.save_session()
+</code></pre>
 </script></section><section data-markdown><script type="text/template">
+# `Transition`
+
+Low level representation of any spectral feature, used to track peaks in `AssignmentSession` and entries in `LineList`.
+
+Stores (meta)data as object attributes:
+
+1. Line frequency/intensity
+2. Source (which experiment/observation/catalog/publication?)
+3. ID number
+4. Identification flag
+
+<div class="fragment">
+
+If molecular,
+
+1. Name/formula/SMILES
+2. Quantum numbers, state energies
+
+</div>
+</script></section><section data-markdown><script type="text/template">
+# `LineList`
+
+Collection of `Transition` objects originating from a single source.
+
+Creation from a variety of different standard sources:
+
+<pre><code class="language-python">molecule = LineList.from_catalog(...)
+# Online database through `astroquery` API
+molecule = LineList.from_splatalogue_query(...)
+molecule = LineList.from_dataframe(...)
+molecule = LineList.from_pgopher(...)
+</code></pre>
+
+Make assignments using a single `LineList`:
+
+<pre><code class="language-python">session.process_linelist(molecule)
+</code></pre>
+
+Or automate creation and assignment with YAML:
+<pre><code class="language-yaml">formaldehyde:
+    formula: h2co
+    filepath: catalogs/v0_h2co.cat
+    source: muller_2017
+    smiles: C=O
+</code></pre>
+
+<pre><code class="language-python">session.process_linelist_batch("batch_catalog.yml")
+</code></pre>
+</script></section><section data-markdown><script type="text/template">
+# `PySpecTools` workflow
+
+Modular/pipeline analysis; separate analysis into multiple scripts/notebooks centred around serialized `AssignmentSession`
+
+`01-spectral_processing.py` — Filter data, serialize `AssignmentSession`
+
+`02-assignments.py` — Load `AssignmentSession`, create `LineList`s, and make peak assignments
+
+<hr>
+
+`03-spectrum_overview.py` — Static figure generation for publication
+
+`04-abundances.py` — Additional line profile analysis
+
+<hr>
+
+<div class="fragment">
+
+Additional script to finalize data products:
+
+`xx-export_data.py` — Generate LaTeX tables, reports, and export CSVs
+
+</div>
+
+<div class="fragment">
+
+<a href="https://">Easy packaging for sharing on platforms like Zenodo</a>
+
+</div>
+</script></section><section data-markdown><script type="text/template">
+# Automated report generation
+
+Uses `jinja` for templating, `plotly` for interactive plots, and `DataTables` for interactive tables; all with `session.finalize_session()`!
+
+<embed type="text/html" src="data/5000-summary.html" style="width: 80%" height=600 class="inverted">
+
+Easy collaborative analysis: everyone has a browser, not everyone knows Python!
+</script></section><section data-markdown><script type="text/template">
+
 # Products with `PySpecTools`
 
 Used extensively in laboratory analogues of interstellar chemistry:
@@ -215,7 +306,7 @@ Used extensively in laboratory analogues of interstellar chemistry:
 
 <figure>
 
-<img src="figures/benzene_toc.png">
+<img src="figures/benzene_toc.png" >
 
 </figure>
 
@@ -227,24 +318,75 @@ Used extensively in laboratory analogues of interstellar chemistry:
 
 Lee & McCarthy, <em> J. Phys. Chem. Lett.</em> 2019
 
-<a>Exhaustive Product Analysis of Three Benzene Discharges</a>
+<a href="https://pubs.acs.org/doi/abs/10.1021/acs.jpca.0c02919">Exhaustive Product Analysis of Three Benzene Discharges</a>
 
 McCarthy _et al._, _J. Phys. Chem. A._ 2020
 
 __Over two hundred new molecules discovered in the last year!__
 
-<a href="https://zenodo.org/record/3739468" class="highlight"> Version tracking with Zenodo with citable DOI </a>
+<a href="https://zenodo.org/record/3739468" class="pop"> Version tracking with Zenodo with citable DOI </a>
 
 </div>
 </script></section></section><section ><section data-markdown><script type="text/template">
 # Deep Learning in Spectroscopy
+
+`PySpecTools` provides tools for identifiable signals—what about unknown ones?
 
 1. Which features belong to a common carrier?
 2. What is the molecular identity of the signal?
 
 <div class="fragment">
 
-<p class="highlight" style="max-width: 60%">Probabilistic deep learning models can help with inference</p>
+<p class="pop" style="max-width: 60%">Probabilistic deep learning models can help accelerate spectroscopic discovery</p>
+
+</div>
+</script></section><section data-markdown><script type="text/template">
+# Probabilistic deep learning
+
+<div id="left">
+
+Deep neural networks as universal function approximators
+
+Deterministic model provide maximum likelihood estimate; maybe not the most appropriate
+
+<div class="fragment">
+
+Probabilistic models return a _distribution_ of possible answers weighted by likelihood
+
+Uncertainty crucial for decision making and information extraction
+
+</div>
+
+<div class="fragment">
+
+<hr>
+
+_How likely is my molecule A, instead of B?_
+
+_How likely does a set of frequencies belong to one molecule?_
+
+</div>
+
+</div>
+
+<div id="right">
+
+<img src="figures/neuralnetworks.svg" class="inverted">
+
+</div>
+</script></section><section data-markdown><script type="text/template">
+# Deep learning models
+
+Development, training, and interfacing with PyTorch
+
+- Deep learning framework with Pythonic abstraction
+- High-level interface for CPU/CUDA code
+
+<div class="fragment">
+
+Training performed with Nvidia GV100 GPUs on the <a href="https://doi.org/10.25572/SIHPC">Hydra computing cluster at the Smithsonian Institution</a>.
+
+Pre-trained model weights, code, and interface implemented in `PySpecTools`: no expertise of deep learning required!
 
 </div>
 </script></section><section data-markdown><script type="text/template">
@@ -252,11 +394,9 @@ __Over two hundred new molecules discovered in the last year!__
 
 Spectral features correspond to transitions between quantum mechanical states represented by a Hamiltonian
 
-
-
 <div id="left">
 
-The encoder model learns to compress information about a sequence of frequencies—like parameters of a Hamiltonian ($z$)
+The encoder model learns to compress information about a sequence of frequencies-like parameters of a Hamiltonian ($z$)
 
 $$ z \vert \nu_n, \nu_{n-1},\ldots $$
 
@@ -273,6 +413,17 @@ $$ \mathrm{softmax(x)} = \frac{\exp(x)}{\sum \exp(x)} $$
 <img class="inverted" src="figures/recurrent-encoder-decoder.png" style="width: 450px">
 
 </div>
+</script></section><section data-markdown><script type="text/template">
+# Identifying new molecules
+
+
+</script></section><section data-markdown><script type="text/template">
+# Future directions
+
+- Pre-assignment performed by reinforcement learning
+    - Deep Q learning with spectroscopic autoencoder
+
+- Extension to other wavelengths
 </script></section></section><section  data-markdown><script type="text/template">
 # Ackowledgements
 
@@ -292,7 +443,17 @@ $$ \mathrm{softmax(x)} = \frac{\exp(x)}{\sum \exp(x)} $$
 <img src="figures/CfA_Logo_Horizontal_Reverse.svg">
 
 <img src="https://static.wixstatic.com/media/2826fb_3c73b71e63a447cd99c3b43146645e53~mv2.png/v1/fill/w_830,h_217,al_c,q_85,usm_0.66_1.00_0.01/SciPy-2020-white-logo-virtual-w-tagline-.webp">
+
+<div style="align-content: center; padding-top: 100px">
+
+<a class="pop" style="width: 60%">
+The entire open-source community!
+</a>
+
+</div>
 </script></section><section  data-markdown><script type="text/template">
+<!-- .slide: data-background-video="figures/RingSpace.mp4" data-background-video-loop="true" -->
+
 <div class="grid sidebar">
     <h1> Thank you! </h1>
 </div>
