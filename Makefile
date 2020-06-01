@@ -6,7 +6,7 @@ TEMPLATE = html/base.html
 SCRIPTS = plugins/highlight.min.js
 STATIC_DIR = _build
 PDF_PATH = slides.pdf
-ASSETS = css,figures
+ASSETS = css,figures,data
 
 FLAGS = $(MAIN) --theme $(CSS) --scripts $(SCRIPTS) --highlight-theme $(SYNTAX) \
 		--template $(TEMPLATE)

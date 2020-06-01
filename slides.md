@@ -328,7 +328,7 @@ Additional script to finalize data products:
 
 Uses `jinja` for templating, `plotly` for interactive plots, and `DataTables` for interactive tables; all with `session.finalize_session()`!
 
-<embed type="text/html" src="data/5000-summary.html" style="width: 80%" height=600 class="inverted">
+<embed type="text/html" src="figures/5000-summary.html" style="width: 80%" height=600 class="inverted">
 
 Easy collaborative analysis: everyone has a browser, not everyone knows Python!
 
@@ -369,16 +369,15 @@ __Over two hundred new molecules discovered in the last year!__
 
 # Deep Learning in Spectroscopy
 
+
 `PySpecTools` provides tools for identifiable signals—what about unknown ones?
+
+<img src="figures/spectroscopy.svg" class="inverted" style="width: 70%">
 
 1. Which features belong to a common carrier?
 2. What is the molecular identity of the signal?
 
-<div class="fragment">
 
-<p class="pop" style="max-width: 60%">Probabilistic deep learning models can help accelerate spectroscopic discovery</p>
-
-</div>
 
 ----
 
@@ -402,9 +401,11 @@ Uncertainty crucial for decision making and information extraction
 
 <hr>
 
-_How likely is my molecule A, instead of B?_
+Given the data...
 
-_How likely does a set of frequencies belong to one molecule?_
+_...how likely is my molecule A, instead of B?_
+
+_...how likely does a set of frequencies belong to one molecule?_
 
 </div>
 
@@ -427,7 +428,9 @@ Development, training, and interfacing with PyTorch
 
 <div class="fragment">
 
-Training performed with Nvidia GV100 GPUs on the <a href="https://doi.org/10.25572/SIHPC">Hydra computing cluster at the Smithsonian Institution</a>.
+Models trained with simulations and quantum chemical data
+
+Training performed with Nvidia GV100 GPUs on the <a href="https://doi.org/10.25572/SIHPC">Hydra computing cluster at the Smithsonian Institution</a>
 
 Pre-trained model weights, code, and interface implemented in `PySpecTools`: no expertise of deep learning required!
 
@@ -435,29 +438,48 @@ Pre-trained model weights, code, and interface implemented in `PySpecTools`: no 
 
 ----
 
-# Spectroscopic Models
-
-Spectral features correspond to transitions between quantum mechanical states represented by a Hamiltonian
+# Spectroscopic models
 
 <div id="left">
 
-The encoder model learns to compress information about a sequence of frequencies-like parameters of a Hamiltonian ($z$)
+Spectral features correspond to transitions between quantum mechanical states represented by a Hamiltonian
 
-$$ z \vert \nu_n, \nu_{n-1},\ldots $$
+Recurrent encoder compresses ordered sequences of frequencies into an encoding vector $z$:
 
-we refer to $z$ as an "encoding"/"embedding" vector.
+$$ z \vert \nu_n, \nu_{n-1},\ldots \nu_1, \nu_2 $$
 
-LSTM model learns to produce useful embeddings by training a classifier to predict $a,b,c$-type spectra as softmax likelihoods:
+<div class="fragment">
 
-$$ \mathrm{softmax(x)} = \frac{\exp(x)}{\sum \exp(x)} $$
+Trained against three losses:
+
+1. Reconstruction loss ($\nu_n \rightarrow z \rightarrow \nu_n$)
+2. Prediction loss ($\nu_n \rightarrow z \rightarrow \nu_{n+1}$)
+3. Softmax classification loss ($a,b,c$-type spectra)
+
+</div>
 
 </div>
 
 <div id="right">
 
-<img class="inverted" src="figures/recurrent-encoder-decoder.png" style="width: 450px">
+<img class="inverted" src="figures/spectral-encoder-decoder.svg" style="width: 40%">
 
 </div>
+
+----
+
+# Encoding spectra
+
+
+----
+
+# Work in progress
+
+✅ LSTM encoder and decoder models
+
+✅ Discriminator model
+
+
 
 ----
 
