@@ -45,10 +45,14 @@ revealOptions:
 
 # Radio Astronomy
 
+<div id="left">
+
 - Observations at radio wavelengths ($\lambda$~submm‒metre)
 - Transparent to absorption by interstellar dust
 - Powerful inteferometry; high bandwidth, spatial, and spectral resolution
 - Wide-range of phenomena: hydrogen spin-flip, charged-particles, molecule rotation
+
+</div>
 
 <footer>
     <p>Credit: ESO/ALMA/NRAO</p>
@@ -78,7 +82,15 @@ Astrophysical objects imaged with exquisite detail!
 
 ----
 
-# Molecular Astrophysics
+# Typical workflow
+
+<img src="figures/workflow.svg" style="width: 100%" class="inverted">
+
+Every step should be reproducible and accountable; automation is key!
+
+----
+
+# Radio Molecular Astrophysics
 
 <div id="left">
 
@@ -86,15 +98,18 @@ Astrophysical objects imaged with exquisite detail!
     - Gas temperature, density, and velocity
 - Microscopic understanding of macroscopic processes;
     - Stellar evolution, planet formation, atmospheres, origins of life
-- Insight derived from _known_ molecular identity: assign molecules to observed features
+- Spectra don't come with labels!
     - Match frequencies with literature data
-
+- Exsaperated by increased data rates
+    - Increased bandwidth and resolution = more data
+    - wSMA upgrade promises 64 GHz of instantenous on-sky bandwidth
 </div>
 
 <div id="right">
 
 <figure>
-    <img src="figures/sgrb2n_spectrum.svg">
+    <!-- <embed id="sgrb2" type="text/html" src="data/sgrb2.html" width=820 height=620 class="inverted"> -->
+    <img src="figures/sgrb2n_spectrum_small.svg" class="inverted" style="width: 90%">
     <figcaption> <a href="https://ui.adsabs.harvard.edu/abs/2013yCat..35590047B/abstract" <em style="font-size: tiny"> Sgr B2(N) observations with IRAM 30m; Belloche+ 2013</em> </a></figcaption>
 </figure>
 
@@ -102,31 +117,12 @@ Astrophysical objects imaged with exquisite detail!
 
 ----
 
-# Zoom and Enhance
+<figure>
 
-<div id="left">
+<img src="figures/sgrb2n_spectrum_full.svg" class="inverted" style="width: 100%">
+<figcaption><a href="#">Full instantaneous bandwidth for wSMA</figcaption>
 
-- Spectroscopic analysis extremely manual and labor intensive
-- Hundreds to thousands of spectral features (molecular and interference)
-- Difficult to automate, reproduce, and catalog
-- Analysis rate incommensurate with data acqusition
-
-<div class="fragment">
-
-<p class="pop">
-    Need to improve automation!
-</p>
-
-</div>
-
-
-</div>
-
-<div id="right">
-
-<img src="figures/patel_irc_64GHz.svg" class="inverted">
-
-</div>
+</figure>
 
 ---
 
@@ -156,19 +152,17 @@ Open-source, Pythonic workflow for assigning broadband spectra
 
 <div class="fragment">
 
-3. Improve information extraction and decision making with deep learning models
+3. Improve information extraction and automation with deep learning models
+
+</div>
+
+<div class="fragment">
+
+<a>Improve analysis rate (months to hours)</a>
 
 </div>
 
 </div>
-
-----
-
-# Typical Workflow
-
-<img src="figures/workflow.svg" style="width: 100%" class="inverted">
-
-Every step should be reproducible and tracable!
 
 ----
 
@@ -181,7 +175,7 @@ Implementation uses three core abstractions:
 1. `AssignmentSession`
     - Metadata, frequency/intensity/automation control
 2. `Transition`
-    - Representation of spectral features
+    - Low-level representation of peaks and catalog entries
 3. `LineList`
     - Collections of `Transition` objects
 
@@ -207,48 +201,24 @@ session.finalize_assignments()
 
 ----
 
-# `AssignmentSession`
-
-Object interface for users to load and interact with spectral data
-
-Stores spectra as <a href="https://pandas.pydata.org/">`pandas.DataFrame`</a>: handles parsing, manipulation, and serialization
-
-```python
-AssignmentSession.from_csv(...).data
-```
-
-Digital signal processing interface with <a href="https://docs.scipy.org/doc/scipy/reference/signal.html">`scipy.signal`</a> and custom window functions:
-
-<pre><code class="language-python">session.apply_filter("hanning")</code></pre>
-
-Baseline and peak detection through custom routines and <a href="https://peakutils.readthedocs.io/en/latest/">`peakutils`</a>:
-
-<pre><code class="language-python"># Find peaks 5 sigma above baseline; use asymmetric least-squares
-session.find_peaks(sigma=5., als=True)
-</code></pre>
-
-Interactive viewing within notebook environments with <a href="https://plotly.com/">Plotly</a>:
-
-<pre><code class="language-python">session.plot_spectrum()
-</code></pre>
-
-Serialize session with <a href="https://joblib.readthedocs.io/en/latest/persistence.html">`joblib` pickle</a>:
-
-<pre><code class="language-python">session.save_session()
-</code></pre>
-
-----
-
 # `Transition`
 
-Low level representation of any spectral feature, used to track peaks in `AssignmentSession` and entries in `LineList`.
+<div id="left">
+
+Low level representation of any spectral feature:
+
+- Peaks
+- Catalog entries
+
+</div>
+
+<div id="right">
 
 Stores (meta)data as object attributes:
 
 1. Line frequency/intensity
 2. Source (which experiment/observation/catalog/publication?)
-3. ID number
-4. Identification flag
+3. Unidentified?
 
 <div class="fragment">
 
@@ -259,36 +229,89 @@ If molecular,
 
 </div>
 
+</div>
+
+----
+
+# `AssignmentSession`
+
+High-level interface for users to load and interact with spectral data
+
+Stores spectra as <a href="https://pandas.pydata.org/">`pandas.DataFrame`</a>: handles parsing, manipulation, and serialization
+
+```python
+AssignmentSession.from_csv(...).data
+```
+
+<div class="fragment">
+
+Digital signal processing interface with <a href="https://docs.scipy.org/doc/scipy/reference/signal.html">`scipy.signal`</a> and custom window functions:
+
+<pre><code class="language-python">session.apply_filter("hanning")</code></pre>
+
+Baseline and peak detection through custom routines and <a href="https://peakutils.readthedocs.io/en/latest/">`peakutils`</a>:
+
+<pre><code class="language-python"># Find all peaks 5 sigma above baseline; use asymmetric least-squares
+session.find_peaks(sigma=5., als=True)
+</code></pre>
+
+</div>
+
+<div class="fragment">
+
+Interactive viewing within notebook environments with <a href="https://plotly.com/">Plotly</a>:
+
+<pre><code class="language-python">session.plot_spectrum()
+</code></pre>
+
+</div>
+
+<div class="fragment">
+
+Serialize analysis with <a href="https://joblib.readthedocs.io/en/latest/persistence.html">`joblib` pickle</a>:
+
+<pre><code class="language-python">session.save_session()
+</code></pre>
+
+</div>
+
 ----
 
 # `LineList`
 
-Collection of `Transition` objects originating from a single source.
+Collection of `Transition` objects originating from a single source
 
 Creation from a variety of different standard sources:
 
 <pre><code class="language-python">molecule = LineList.from_catalog(...)
+molecule = LineList.from_pgopher(...)
 # Online database through `astroquery` API
 molecule = LineList.from_splatalogue_query(...)
-molecule = LineList.from_dataframe(...)
-molecule = LineList.from_pgopher(...)
 </code></pre>
+
+<div class="fragment">
 
 Make assignments using a single `LineList`:
 
 <pre><code class="language-python">session.process_linelist(molecule)
 </code></pre>
 
+</div>
+
+<div class="fragment">
+
 Or automate creation and assignment with YAML:
 <pre><code class="language-yaml">formaldehyde:
     formula: h2co
-    filepath: catalogs/v0_h2co.cat
-    source: muller_2017
-    smiles: C=O
+    filepath: catalogs/v0_h2co.cat             # static data
+    source: muller_2017                       # bibtex citation
+    smiles: C=O                               # unique identification
 </code></pre>
 
 <pre><code class="language-python">session.process_linelist_batch("batch_catalog.yml")
 </code></pre>
+
+</div>
 
 ----
 
@@ -296,29 +319,13 @@ Or automate creation and assignment with YAML:
 
 Modular/pipeline analysis; separate analysis into multiple scripts/notebooks centred around serialized `AssignmentSession`
 
-`01-spectral_processing.py` — Filter data, serialize `AssignmentSession`
-
-`02-assignments.py` — Load `AssignmentSession`, create `LineList`s, and make peak assignments
-
-<hr>
-
-`03-spectrum_overview.py` — Static figure generation for publication
-
-`04-abundances.py` — Additional line profile analysis
-
-<hr>
+<img src="figures/pyspec_workflow.svg" class="inverted" style="width: 60%">
 
 <div class="fragment">
 
-Additional script to finalize data products:
+<a href="https://">Easy data products for sharing on platforms like Zenodo</a>
 
-`xx-export_data.py` — Generate LaTeX tables, reports, and export CSVs
-
-</div>
-
-<div class="fragment">
-
-<a href="https://">Easy packaging for sharing on platforms like Zenodo</a>
+<a href="https://papermill.readthedocs.io/en/latest/">Automate sequential analysis with `papermill`</a>
 
 </div>
 
@@ -326,11 +333,11 @@ Additional script to finalize data products:
 
 # Automated report generation
 
-Uses `jinja` for templating, `plotly` for interactive plots, and `DataTables` for interactive tables; all with `session.finalize_session()`!
+Static, data-driven HTML document through `jinja`, `plotly`, and `DataTables`
 
 <embed type="text/html" src="figures/5000-summary.html" style="width: 80%" height=600 class="inverted">
 
-Easy collaborative analysis: everyone has a browser, not everyone knows Python!
+<a>Easy collaborative analysis: everyone has a browser, not everyone knows Python!</a>
 
 ----
 
@@ -374,10 +381,12 @@ __Over two hundred new molecules discovered in the last year!__
 
 <img src="figures/spectroscopy.svg" class="inverted" style="width: 70%">
 
-1. Which features belong to a common carrier?
-2. What is the molecular identity of the signal?
+<div class="fragment">
 
+1. Which frequencies form a set?
+2. What is the molecular identity of a set?
 
+</div>
 
 ----
 
@@ -419,20 +428,43 @@ _...how likely does a set of frequencies belong to one molecule?_
 
 ----
 
-# Deep learning models
+# Molecule detective
 
-Development, training, and interfacing with PyTorch
+Probabilistic model decodes spectroscopic parameters into identifying features
 
-- Deep learning framework with Pythonic abstraction
-- High-level interface for CPU/CUDA code
+Multilayer perceptron using dropouts as an approximation to Bayesian sampling
 
-<div class="fragment">
+<div id="left">
 
-Models trained with simulations and quantum chemical data
+<figure>
+<img src="figures/architecture_graphic.png" class="inverted">
+<figcaption></figcaption>
+</figure>
 
-Training performed with Nvidia GV100 GPUs on the <a href="https://doi.org/10.25572/SIHPC">Hydra computing cluster at the Smithsonian Institution</a>
+</div>
 
-Pre-trained model weights, code, and interface implemented in `PySpecTools`: no expertise of deep learning required!
+<div id="right" class="fragment">
+
+<img src="https://raw.githubusercontent.com/laserkelvin/rotconML/master/toc_graphic.png">
+<figcaption>DOI: <a href="https://pubs.acs.org/doi/10.1021/acs.jpca.0c01376">10.1021/acs.jpca.0c01376 </figcaption>
+
+</div>
+
+----
+
+# `PySpecTools` implementation
+
+<div id="left">
+
+<img src="figures/molecule_detective.png">
+
+</div>
+
+<div id="right">
+
+- Variational model weights included in the latest version of `PySpecTools`
+- High-level interface — no deep learning knowledge necessary
+- Example notebook available <a style="color: #000000" href="https://laserkelvin.github.io/pyspectools">in the docs!</a>
 
 </div>
 
@@ -440,21 +472,15 @@ Pre-trained model weights, code, and interface implemented in `PySpecTools`: no 
 
 # Spectroscopic models
 
+Finding likely sets of frequencies from forests of lines
+
 <div id="left">
-
-Spectral features correspond to transitions between quantum mechanical states represented by a Hamiltonian
-
-Recurrent encoder compresses ordered sequences of frequencies into an encoding vector $z$:
-
-$$ z \vert \nu_n, \nu_{n-1},\ldots \nu_1, \nu_2 $$
 
 <div class="fragment">
 
-Trained against three losses:
+$ {200 \choose 6} = $ 82.4 million possible combinations
 
-1. Reconstruction loss ($\nu_n \rightarrow z \rightarrow \nu_n$)
-2. Prediction loss ($\nu_n \rightarrow z \rightarrow \nu_{n+1}$)
-3. Softmax classification loss ($a,b,c$-type spectra)
+$ {250 \choose 6} = $ 319 million possible combinations
 
 </div>
 
@@ -462,39 +488,54 @@ Trained against three losses:
 
 <div id="right">
 
-<img class="inverted" src="figures/spectral-encoder-decoder.svg" style="width: 40%">
+<div class="fragment">
+
+<a> Brute-force search tractable, but highly inefficient and can be misleading </a>
+
+- Scales poorly with number of frequencies
+- No estimation of uncertainty: good sets just as likely as unphysical ones
+
+</div>
+
+<div class="fragment">
+
+<p class="pop" style="max-width:90%">
+Use deep reinforcement learning to automate "intelligent" search
+</p>
+
+</div>
 
 </div>
 
 ----
 
-# Encoding spectra
+# Searching for sets
 
+<div id="left">
 
-----
+<img src="figures/reinforcement_learning.svg" class="inverted">
 
-# Work in progress
+</div>
 
-✅ LSTM encoder and decoder models
+<div id="right">
 
-✅ Discriminator model
+- Deep learning framework for self/semi-supervised spectroscopy solver
+    - Parameterized state and policy models
+- Work in progress!
+    - ✅ Encoder model
+    - 🚧 Policy model
+    - 🚧 Open-source "Gym" environment for spectroscopy RL
 
+</div>
 
+---
 
-----
+# Final remarks
 
-# Identifying new molecules
-
-
-
-----
-
-# Future directions
-
-- Pre-assignment performed by reinforcement learning
-    - Deep Q learning with spectroscopic autoencoder
-
-- Extension to other wavelengths
+- `PySpecTools` as an open-source toolkit for analyzing laboratory and astronomical spectra
+- Continually improving capaibilities, particularly automation by deep learning
+- Extension to other wavelengths (infrared/optical spectra)
+- Contributions welcome!
 
 ---
 
@@ -553,3 +594,75 @@ The entire open-source community!
 Copyright © 2020 Kelvin Lee
 
 </footer>
+
+---
+
+# Supplementary slides
+
+----
+
+# Spectroscopic models
+
+<div id="left">
+
+Spectral features correspond to transitions between quantum mechanical states represented by a Hamiltonian
+
+Recurrent encoder compresses ordered sequences of frequencies into an encoding vector $z$:
+
+$$ z_n \vert \nu_n, \nu_{n-1},\ldots \nu_1, \nu_2 $$
+
+<div class="fragment">
+
+Trained against three losses:
+
+1. Reconstruction loss ($\nu_n \rightarrow z \rightarrow \nu_n$)
+2. Prediction loss ($\nu_n \rightarrow z \rightarrow \nu_{n+1}$)
+3. Softmax classification loss ($a,b,c$-type spectra)
+
+</div>
+
+</div>
+
+<div id="right">
+
+<img class="inverted" src="figures/spectral-encoder-decoder.svg" style="width: 40%">
+
+</div>
+
+----
+
+# Encoding spectra
+
+<div id="left">
+
+Trained on 2 million rotational spectra:
+
+- ~99% accuracy ($F_1$ score) in spectral type classification
+- 0.2% mean-squared reconstruction error
+- 0.4% mean-squared prediction error
+
+<div class="fragment">
+
+Not accurate enough to replace physical models; good enough for machine learning!
+
+</div>
+
+<div class="fragment">
+
+Discriminator model distinguishes random versus molecular sequences with 94% accuracy
+
+</div>
+
+</div>
+
+<div id="right">
+
+<figure>
+
+<img src="figures/embedding-viz.svg" class="inverted">
+
+<figcaption>UMAP visualization of $\nu$ and embeddings</figcaption>
+
+</figure>
+
+</div>
