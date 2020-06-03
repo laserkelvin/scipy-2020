@@ -11,7 +11,7 @@ def gaussian(x, A, x0, sigma):
 def draw_plot(x, y):
     fig, ax = plt.subplots(figsize=(10, 2))
 
-    ax.plot(x, y,) #color="#3a5ca7", alpha=0.8)
+    ax.plot(x, y, gid="line_plot")
 
     for spine in ax.spines.values():
         spine.set_visible(False)
