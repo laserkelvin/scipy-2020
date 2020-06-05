@@ -62,31 +62,27 @@ revealOptions:
 
 <div class="column">
     <p>Black Hole Imaging</p>
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Black_hole_-_Messier_87_crop_max_res.jpg/1024px-Black_hole_-_Messier_87_crop_max_res.jpg">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Black_hole_-_Messier_87_crop_max_res.jpg/1024px-Black_hole_-_Messier_87_crop_max_res.jpg" style="width: 70%">
     <figcaption>Credit: EHT/NSF/ALMA/SMA/IRAM/JCMT/LMT/SMT</figcaption>
 </div>
 
 <div class="column">
     <p>Circumstellar Shells</p>
-    <img src="figures/co-sma-images.jpg">
+    <img src="figures/co-sma-images.jpg" style="width: 70%">
     <figcaption>DOI: <a href="https://www.aanda.org/articles/aa/abs/2018/02/aa31619-17/aa31619-17.html">10.1051/0004-6361/201731619 <a> </figcaption>
 </div>
 
-<footer>
-
-<p style="font-size: 1rem">
-Astrophysical objects imaged with exquisite detail!
-</p>
-
-</footer>
+<div class="column">
+    <p>Protoplanetary Discs</p>
+    <img src="figures/yen_hl_tau.png" style="width: 70%">
+    <figcaption>DOI: <a href="https://iopscience.iop.org/article/10.3847/2041-8205/820/2/L25">10.3847/2041-8205/820/2/L25</a></figcaption>
+</div>
 
 ----
 
 # Typical workflow
 
 <img src="figures/workflow.svg" style="width: 100%" class="inverted">
-
-Every step should be reproducible and accountable; automation is key!
 
 ----
 
@@ -117,12 +113,23 @@ Every step should be reproducible and accountable; automation is key!
 
 ----
 
+<div style="justify-content: center">
+
 <figure>
 
 <img src="figures/sgrb2n_spectrum_full.svg" class="inverted" style="width: 100%">
-<figcaption><a href="#">Full instantaneous bandwidth for wSMA</figcaption>
+
+<figcaption><a href="">Full instantaneous bandwidth for wSMA</a></figcaption>
 
 </figure>
+
+<div class="fragment" style="padding-left: 40px">
+
+<img src="figures/workflow.svg" style="width: 80%;" class="inverted">
+
+<figcaption>Every step should be reproducible and accountable!</figcaption>
+
+</div>
 
 ---
 
@@ -438,8 +445,14 @@ Multilayer perceptron using dropouts as an approximation to Bayesian sampling
 
 <figure>
 <img src="figures/architecture_graphic.png" class="inverted">
-<figcaption></figcaption>
+<figcaption>Trained on 83,000 small, organic molecules based on quantum chemistry data</figcaption>
 </figure>
+
+<div class="fragment">
+
+Training data uncertainty used as augmentation strategy
+
+</div>
 
 </div>
 
@@ -478,9 +491,9 @@ Finding likely sets of frequencies from forests of lines
 
 <div class="fragment">
 
-$ {200 \choose 6} = $ 82.4 million possible combinations
+$ {^{200}P_6} = $ 59 trillion possible permutations
 
-$ {250 \choose 6} = $ 319 million possible combinations
+$ {^{250}P_6} = $ 230 trillion possible permutations
 
 </div>
 
@@ -490,10 +503,11 @@ $ {250 \choose 6} = $ 319 million possible combinations
 
 <div class="fragment">
 
-<a> Brute-force search tractable, but highly inefficient and can be misleading </a>
+<a> Brute-force search over the full space is intractable and misleading</a>
 
 - Scales poorly with number of frequencies
 - No estimation of uncertainty: good sets just as likely as unphysical ones
+- Spectroscopists use intuition and pattern recognition to find sets
 
 </div>
 
@@ -532,10 +546,21 @@ Use deep reinforcement learning to automate "intelligent" search
 
 # Final remarks
 
+<div id="left">
+
 - `PySpecTools` as an open-source toolkit for analyzing laboratory and astronomical spectra
-- Continually improving capaibilities, particularly automation by deep learning
+- Automated and reproducible workflow for hundreds to thousands of spectral features
+- Continually improving capabilities, particularly automation by deep learning
 - Extension to other wavelengths (infrared/optical spectra)
 - Contributions welcome!
+
+</div>
+
+<div id="right">
+
+<img src="https://raw.githubusercontent.com/laserkelvin/PySpecTools/master/docs/source/_images/pst_logo_landscape.png">
+
+</div>
 
 ---
 
@@ -591,7 +616,7 @@ The entire open-source community!
 
 <footer>
 
-Copyright © 2020 Kelvin Lee
+Slides at https://laserkelvin.github.io/scipy-2020 — Copyright © 2020 Kelvin Lee
 
 </footer>
 
