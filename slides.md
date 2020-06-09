@@ -397,19 +397,55 @@ __Over two hundred new molecules discovered in the last year!__
 
 ----
 
+# Deep Learning
+
+<div id="left">
+
+- Neural networks as universal function approximators
+- Given input data, $X$, network learns parameters $\theta$ that minimizes loss $J$
+- Computational solution for highly abstract tasks
+    - Self-driving cars, drug discovery, _spectroscopy?_
+- Generalized learning through representations: same $\theta$, different tasks
+
+$$ X_{n+1} = g(w^T_{n} X_n + b_n); w, b \in \theta$$
+
+</div>
+
+<div id="right">
+
+<div class="fragment">
+
+<figure>
+<img src="https://blog.talla.com/hubfs/AlphaGo.png" class="inverted">
+</figure>
+
+2016, AlphaGo—first win against Go master without handicap
+
+2017, AlphaGo Zero—plays _both Chess and Go_
+
+2018, AlphaZero—plays Chess, Shogi, and Go; all trained withinin 24 hours
+
+2019, MuZero—mastered Atari games, Chess, Shogi, and Go
+
+</div>
+
+</div>
+
+----
+
 # Probabilistic deep learning
 
 <div id="left">
 
-Deep neural networks as universal function approximators
+Combining Bayesian statistics with neural networks
 
-Deterministic model provide maximum likelihood estimate; maybe not the most appropriate
+Deterministic models provide maximum likelihood estimate; maybe not the most appropriate
 
 <div class="fragment">
 
 Probabilistic models return a _distribution_ of possible answers weighted by likelihood
 
-Uncertainty crucial for decision making and information extraction
+Uncertainty crucial for low- to high-dimensional transformations
 
 </div>
 
@@ -417,7 +453,7 @@ Uncertainty crucial for decision making and information extraction
 
 <hr>
 
-Given the data...
+Given the data/evidence...
 
 _...how likely is my molecule A, instead of B?_
 
@@ -435,9 +471,76 @@ _...how likely does a set of frequencies belong to one molecule?_
 
 ----
 
-# Molecule detective
+# Identifying unknown molecules
 
-Probabilistic model decodes spectroscopic parameters into identifying features
+<div id="left">
+
+Use all available spectroscopic information and uncertainty to identify molecule
+
+<div class="fragment">
+
+| Parameter | Value |
+|-----------|-------|
+| $A$       | 32152.5(245) |
+| $B$       | 7623.52516(23) |
+| $C$       | 6467.72872(89) |
+| $\mu_a$   | Yes |
+| $\mu_b$   | Yes |
+| $\mu_c$   | ? |
+
+</div>
+
+</div>
+
+<div id="right">
+
+<div class="fragment">
+
+- Rotational constants proportional to mass (and distribution)
+- Dipole moments proportional to functionalization
+- Some parameters more uncertain than others
+- Value of dipole moments uncertain, but if measured are informative
+
+</div>
+
+<div class="fragment">
+
+Infer characteristics of an unknown molecule through Bayes' rule:
+
+$$ p(M \vert X) = \frac{p(X \vert M) p(M)}{p(X)} $$
+
+Probabilistic neural network parameterizes $p(M \vert X) \approx p_\theta(M \vert X)$
+
+</div>
+
+</div>
+
+----
+
+# Obtaining Training Data
+
+<div id="left">
+
+<figure>
+<img src="figures/bayesian-toc.png">
+<figcaption>DOI: <a href="https://pubs.acs.org/doi/10.1021/acs.jpca.9b09982">10.1021/acs.jpca.9b09982</a></figcaption>
+</figure>
+
+</div>
+
+<div id="right">
+
+- Modest dataset of 83,000 small organic molecules
+    - Equilibrium structures and dipole moments
+- Optimized with $\omega$B97X-D/6-31+G(d); known relative shifts from experimental constants ($\delta$)
+    - Similar to Radom scaling factors for infrared frequencies, but treated in a Bayesian way
+- Each training iteration scales $A(BC)_e$ and $\mu$ with $\delta$ according to $p(\delta)$ from Bayesian benchmarking
+
+</div>
+
+----
+
+# Molecule detective
 
 Multilayer perceptron using dropouts as an approximation to Bayesian sampling
 
@@ -445,12 +548,14 @@ Multilayer perceptron using dropouts as an approximation to Bayesian sampling
 
 <figure>
 <img src="figures/architecture_graphic.png" class="inverted">
-<figcaption>Trained on 83,000 small, organic molecules based on quantum chemistry data</figcaption>
 </figure>
 
 <div class="fragment">
 
-Training data uncertainty used as augmentation strategy
+Gradual increase in dimensionality:
+1. Experimental parameters ➡ Coulomb matrix eigenvalues
+2. Eigenspectrum ➡ Identifiers
+3. Eigenspectrm ➡ Molecular structure
 
 </div>
 
@@ -476,8 +581,20 @@ Training data uncertainty used as augmentation strategy
 <div id="right">
 
 - Variational model weights included in the latest version of `PySpecTools`
+    - 426 kB on disc—contrast with keeping a database
 - High-level interface — no deep learning knowledge necessary
-- Example notebook available <a style="color: #000000" href="https://laserkelvin.github.io/pyspectools">in the docs!</a>
+- Example notebook available <a style="color: #000000" href="https://laserkelvin.github.io/PySpecTools" target="_blank">in the docs!</a>
+
+<div class="fragment">
+
+### Work in progress
+
+1. 🚧 Model overconfidence
+2. 🚧 Conditional and direct generation of structures
+
+Constants ➡ Model ➡ SMILES ➡ Conformer generation
+
+</div>
 
 </div>
 
@@ -523,6 +640,86 @@ Use deep reinforcement learning to automate "intelligent" search
 
 ----
 
+# Learning spectroscopic patterns
+
+<div id="left">
+
+Recurrent encoder compresses ordered sequences of frequencies into an encoding vector $z$:
+
+$$ z_n \vert \nu_n, \nu_{n-1},\ldots \nu_1, \nu_2 $$
+
+<div class="fragment">
+
+Trained against three losses:
+
+1. Reconstruction loss ($\nu_n \rightarrow z \rightarrow \nu_n$)
+2. Prediction loss ($\nu_n \rightarrow z \rightarrow \nu_{n+1}$)
+3. Softmax classification loss ($a,b,c$-type spectra)
+
+</div>
+
+<div class="fragment">
+
+Advantages:
+
+1. Does not need quantum number assignment
+2. Fast and massively parallel; native CPU/GPU processing
+3. Not least-squares fit; pure statistics
+
+</div>
+
+</div>
+
+<div id="right">
+
+<figure>
+<img class="inverted" src="figures/spectral-encoder-decoder.svg" style="width: 40%">
+<figcaption>Recurrent encoder-decoder architecture</figcaption>
+</figure>
+
+</div>
+
+----
+
+# Encoding spectra
+
+<div id="left">
+
+Trained on 2 million asymmetric top rotational spectra:
+
+- Training iteration takes random chunks of spectra of variable length (5‒50 frequencies)
+- ~99% accuracy ($F_1$ score) in spectral type classification
+- 0.2% mean-squared reconstruction error (~1 GHz @ 400 GHz)
+- 0.4% mean-squared prediction error
+
+<div class="fragment">
+
+Not accurate enough to replace physical models; semantic enough for machine learning!
+
+</div>
+
+<div class="fragment">
+
+Discriminator model distinguishes random versus molecular sequences with 94% accuracy
+
+</div>
+
+</div>
+
+<div id="right">
+
+<figure>
+
+<img src="figures/embedding-viz.svg" class="inverted">
+
+<figcaption>UMAP visualization of $\nu$ and embeddings</figcaption>
+
+</figure>
+
+</div>
+
+----
+
 # Searching for sets
 
 <div id="left">
@@ -558,7 +755,8 @@ Use deep reinforcement learning to automate "intelligent" search
 
 <div id="right">
 
-<img src="https://raw.githubusercontent.com/laserkelvin/PySpecTools/master/docs/source/_images/pst_logo_landscape.png">
+<!-- <img src="https://raw.githubusercontent.com/laserkelvin/PySpecTools/master/docs/source/_images/pst_logo_landscape.png"> -->
+<img src="figures/conclusion_workflow.svg" class="inverted">
 
 </div>
 
@@ -581,13 +779,9 @@ Use deep reinforcement learning to automate "intelligent" search
 
 <img src="figures/CfA_Logo_Horizontal_Reverse.svg">
 
-<img src="https://static.wixstatic.com/media/2826fb_3c73b71e63a447cd99c3b43146645e53~mv2.png/v1/fill/w_830,h_217,al_c,q_85,usm_0.66_1.00_0.01/SciPy-2020-white-logo-virtual-w-tagline-.webp">
+<!-- <img src="https://static.wixstatic.com/media/2826fb_3c73b71e63a447cd99c3b43146645e53~mv2.png/v1/fill/w_830,h_217,al_c,q_85,usm_0.66_1.00_0.01/SciPy-2020-white-logo-virtual-w-tagline-.webp"> -->
 
 <div style="align-content: center; padding-top: 100px">
-
-<a class="pop" style="width: 60%">
-The entire open-source community!
-</a>
 
 </div>
 
@@ -623,71 +817,3 @@ Slides at https://laserkelvin.github.io/scipy-2020 — Copyright © 2020 Kelvin 
 ---
 
 # Supplementary slides
-
-----
-
-# Spectroscopic models
-
-<div id="left">
-
-Spectral features correspond to transitions between quantum mechanical states represented by a Hamiltonian
-
-Recurrent encoder compresses ordered sequences of frequencies into an encoding vector $z$:
-
-$$ z_n \vert \nu_n, \nu_{n-1},\ldots \nu_1, \nu_2 $$
-
-<div class="fragment">
-
-Trained against three losses:
-
-1. Reconstruction loss ($\nu_n \rightarrow z \rightarrow \nu_n$)
-2. Prediction loss ($\nu_n \rightarrow z \rightarrow \nu_{n+1}$)
-3. Softmax classification loss ($a,b,c$-type spectra)
-
-</div>
-
-</div>
-
-<div id="right">
-
-<img class="inverted" src="figures/spectral-encoder-decoder.svg" style="width: 40%">
-
-</div>
-
-----
-
-# Encoding spectra
-
-<div id="left">
-
-Trained on 2 million rotational spectra:
-
-- ~99% accuracy ($F_1$ score) in spectral type classification
-- 0.2% mean-squared reconstruction error
-- 0.4% mean-squared prediction error
-
-<div class="fragment">
-
-Not accurate enough to replace physical models; good enough for machine learning!
-
-</div>
-
-<div class="fragment">
-
-Discriminator model distinguishes random versus molecular sequences with 94% accuracy
-
-</div>
-
-</div>
-
-<div id="right">
-
-<figure>
-
-<img src="figures/embedding-viz.svg" class="inverted">
-
-<figcaption>UMAP visualization of $\nu$ and embeddings</figcaption>
-
-</figure>
-
-</div>
