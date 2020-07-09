@@ -1,5 +1,10 @@
 
-# Quick Reveal.js Talk Templates
+# SciPy-2020 Talk
+
+These are my slides for SciPy 2020; the first I attended!
+
+The slides are built with `reveal.js`, and are served as static HTML on the Github
+pages [https://laserkelvin.github.io/scipy-2020](of this repo).
 
 ## Instructions
 
