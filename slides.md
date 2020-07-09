@@ -626,6 +626,40 @@ Slides at https://laserkelvin.github.io/scipy-2020 — Copyright © 2020 Kelvin 
 
 ----
 
+# Summary
+
+<div id="left">
+
+PySpecTools tries to:
+
+1. Provide a familiar abstraction for spectroscopists and astronomers for analyzing broadband spectra
+2. Help automate spectroscopic assignment, and improve reproducibility
+3. Improve rate of molecule discovery using deep learning models
+
+Slides @ https://laserkelvin.github.io/scipy-2020
+
+Github @ https://github.com/laserkelvin/pyspectools
+
+Docs   @ https://laserkelvin.github.io/PySpecTools
+
+</div>
+
+<div id="right">
+
+Relevant papers:
+
+<figure style="width: 70%">
+<img src="https://raw.githubusercontent.com/laserkelvin/rotconML/master/toc_graphic.png">
+<figcaption>DOI: <a href="https://pubs.acs.org/doi/10.1021/acs.jpca.0c01376">10.1021/acs.jpca.0c01376</a> </figcaption>
+<figcaption>DOI: <a href="https://pubs.acs.org/doi/10.1021/acs.jpca.0c02919">10.1021/acs.jpca.0c02919</a> </figcaption>
+<figcaption>DOI: <a href="https://pubs.acs.org/doi/10.1021/acs.jpclett.9b00586">10.1021/acs.jpclett.9b00586</a> </figcaption>
+</figure>
+
+
+</div>
+
+----
+
 # Spectroscopic models
 
 <div id="left">
